@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon -L server.js",
@@ -12,8 +11,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "module",
   "dependencies": {
-    "dotenv": "^18.0.3",
+    "dotenv": "^18.0.4",
     "express": "^5.2.1",
     "mongoose": "^9.10.2",
     "morgan": "^1.12.1"
