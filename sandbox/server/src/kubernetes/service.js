@@ -31,4 +31,6 @@ export const createService = async (sandboxId) => {
         namespace: "default",
         body: serviceManifest
     });
+
+    return response;
 } 
