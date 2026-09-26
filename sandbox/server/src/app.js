@@ -29,7 +29,7 @@ app.post("/api/sandbox/start", async (req, res) => {
         message: "Sandbox environment created successfully.",
         sandboxId,
         previewUrl: `http://${sandboxId}.preview.localhost`
-    })
+    });
 });
 
 export default app;
