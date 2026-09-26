@@ -7,6 +7,14 @@ const app = express();
 app.use(express.json());
 app.use(morgan("combined"));
 
+app.get("/api/status/healthz", (req, res) => {
+    res.status(200).json({ status: "ok" });
+});
+
+app.get("/api/status/readyz", (req, res) => {
+    res.status(200).json({ status: "ready" });
+});
+
 app.use((req, res, next) => {
     const host = req.headers.host
 
@@ -20,15 +28,6 @@ app.use((req, res, next) => {
         ws: true
     }) (req, res, next);
 });
-
-app.get("/api/status/healthz", (req, res) => {
-    res.status(200).json({ status: "ok" });
-});
-
-app.get("/api/status/readyz", (req, res) => {
-    res.status(200).json({ status: "ready" });
-});
-
 
 
 export default app;
