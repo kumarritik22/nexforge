@@ -16,6 +16,13 @@ app.get("/", (req, res) => {
     });
 });
 
+app.post("/api-agent", (req, res) => {
+    res.status(200).json({
+        message: "Hello from sandbox api agent!",
+        status: "success"
+    });
+});
+
 app.get("/list-files", async (req, res) => {
     const elements = await fs.promises.readdir(WORKING_DIR);
 
