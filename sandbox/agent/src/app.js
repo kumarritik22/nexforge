@@ -19,6 +19,15 @@ app.get("/", (req, res) => {
 });
 
 
+// @route GET /list-files
+// @description Lists all files in the working directory and its subdirectories. Return a JSON object with the file paths relative to the working directory.
+// @ e.g {
+//     "files": [
+//         "file1.txt",
+//         "src/file2.txt",
+//         "file3.txt"
+//     ]
+// }
 app.get("/list-files", async (req, res) => {
     
     const listFiles = async (dir, baseDir) => {
@@ -59,7 +68,7 @@ app.get("/list-files", async (req, res) => {
 });
 
 
-// @route /read-files
+// @route GET /read-files
 // @description Read the content of all files requested in the query parameter "files" and returns their content as a JSON Object.
 app.get("/read-files", async (req, res) => {
 
@@ -75,16 +84,16 @@ app.get("/read-files", async (req, res) => {
     const fileList = files.split(",");
 
     const results = await Promise.all(fileList.map(async (file) => {
-        const filePath = `${WORKING_DIR}/${file}`;
+        const filePath = path.join(WORKING_DIR, file);
 
         try {
-            const content = await await fs.promises.readFile(filePath, "utf-8");
+            const content = await fs.promises.readFile(filePath, "utf-8");
             return {
-                [ filePath ] : content
+                [ filePath.replace(WORKING_DIR, "") ] : content
             }
         } catch (error) {
             return {
-                [ filePath ] : `Error reading file: ${error.message}`
+                [ filePath.replace(WORKING_DIR, "") ] : `Error reading file: ${error.message}`
             }
         }
     }));
@@ -150,6 +159,7 @@ app.post("/create-files", async (req, res) => {
         const filePath = path.join(WORKING_DIR, file);
 
         try {
+            await fs.promises.mkdir(path.dirname (filePath), { recursive : true });
             await fs.promises.writeFile(filePath, content, "utf-8")
             return {
                 [ filePath ] : "File created successfully."
