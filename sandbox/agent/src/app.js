@@ -56,4 +56,40 @@ app.get("/list-files", async (req, res) => {
     }
 });
 
+// @route /read-files
+// @description Read the content of all files requested in the query parameter "files" and returns their content as a JSON Object.
+app.get("/read-files", async (req, res) => {
+
+    const files = req.query.files;
+
+    if (!files) {
+        return res.status(400).json({
+            message: "No files specified in query parameter.",
+            status: "error"
+        });
+    }
+
+    const fileList = files.split(",");
+
+    const results = await Promise.all(fileList.map(async (file) => {
+        const filePath = `${WORKING_DIR}/${file}`;
+
+        try {
+            const content = await await fs.promises.readFile(filePath, "utf-8");
+            return {
+                [ filePath ] : content
+            }
+        } catch (error) {
+            return {
+                [ filePath ] : `Error reading file: ${error.message}`
+            }
+        }
+    }));
+
+    res.status(200).json({
+        message: "File contents.",
+        files: results
+    });
+});
+
 export default app;
