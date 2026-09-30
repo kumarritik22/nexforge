@@ -132,4 +132,40 @@ app.patch("/update-files", async (req, res) => {
 });
 
 
+// @route POST /create-files
+// @description Creates new files with the content specified in the request body. The request body should contain a property "files" with a JSON Array of objects, each object should have a "file" property specifying the file path (relative to the working directory) and a content property specifying the content for the new file.
+app.post("/create-files", async (req, res) => {
+    
+    const files = req.body.files;
+
+    if (!files || !Array.isArray(files)) {
+        return res.status(400).json({
+            message: "Invalid request body. Expected a JSON object with a 'files' property containing an array of file objects.",
+            status: "error"
+        });
+    }
+
+    const results = await Promise.all(files.map(async (fileObj) => {
+        const { file, content } = fileObj;
+        const filePath = path.join(WORKING_DIR, file);
+
+        try {
+            await fs.promises.writeFile(filePath, content, "utf-8")
+            return {
+                [ filePath ] : "File created successfully."
+            }
+        } catch (error) {
+            return {
+                [ filePath ] : `Error creating file: ${error.message}`
+            }
+        }
+    }));
+
+    res.status(200).json({
+        message: "File creation results.",
+        results
+    });
+});
+
+
 export default app;
