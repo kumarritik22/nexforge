@@ -15,10 +15,6 @@ app.get("/api/status/readyz", (req, res) => {
     res.status(200).json({ status: "ready" });
 });
 
-app.get("/api/status/down", (req, res) => {
-    res.status(404).json({ status: "server down" });
-});
-
 const proxies = {}
 const agentProxies = {}
 

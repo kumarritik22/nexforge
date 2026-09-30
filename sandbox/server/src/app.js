@@ -17,13 +17,6 @@ app.get("/api/sandbox/health", (req, res) => {
     });
 });
 
-app.get("/api/sandbox/ready", (req, res) => {
-    res.status(200).json({
-        message: "Sandbox api is ready.",
-        status: "Ok"
-    });
-});
-
 app.post("/api/sandbox/start", async (req, res) => {
     const sandboxId = uuid();
 
