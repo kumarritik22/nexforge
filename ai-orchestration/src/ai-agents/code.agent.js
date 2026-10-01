@@ -5,7 +5,8 @@ import { createAgent } from "langchain";
 
 const model = new ChatMistralAI({
     model: "codestral-latest",
-    apiKey: process.env.MISTRALAI_API_KEY
+    apiKey: process.env.MISTRALAI_API_KEY,
+    temperature: 0
 });
 
 const agent = createAgent({
