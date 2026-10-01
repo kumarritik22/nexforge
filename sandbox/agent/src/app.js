@@ -21,11 +21,11 @@ app.get("/", (req, res) => {
 
 // @route GET /list-files
 // @description Lists all files in the working directory and its subdirectories. Return a JSON object with the file paths relative to the working directory.
-// @ e.g {
+// - eg. {
 //     "files": [
 //         "file1.txt",
 //         "src/file2.txt",
-//         "file3.txt"
+//         "src/subdir/file3.txt"
 //     ]
 // }
 app.get("/list-files", async (req, res) => {
@@ -70,6 +70,7 @@ app.get("/list-files", async (req, res) => {
 
 // @route GET /read-files
 // @description Read the content of all files requested in the query parameter "files" and returns their content as a JSON Object.
+// - eg. /read-files?files=file1.txt,/src/file2.txt
 app.get("/read-files", async (req, res) => {
 
     const files = req.query.files;
