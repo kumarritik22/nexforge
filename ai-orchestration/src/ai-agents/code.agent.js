@@ -4,7 +4,7 @@ import { listFiles, readFiles, updateFiles } from "./tools.js";
 import { createAgent } from "langchain";
 
 const model = new ChatMistralAI({
-    model: "mistral-medium-latest",
+    model: "codestral-latest",
     apiKey: process.env.MISTRALAI_API_KEY
 });
 
@@ -13,11 +13,13 @@ const agent = createAgent({
     tools: [ listFiles, readFiles, updateFiles ]
 });
 
-await agent.invoke({
+const result = await agent.invoke({
     messages: [
         {
             role: "user",
-            content: "Update the project theme to light."
+            content: "You have access to tools to inspect and modify project files. Please inspect the project files and build a snake game using React and tailwind css. The game should be playable."
         }
     ]
 });
+
+console.log(result);
