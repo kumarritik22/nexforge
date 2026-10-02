@@ -2,6 +2,8 @@ kind: Service
 apiVersion: v1
 metadata:
   name:  sandbox-service
+  labels:
+    name: sandbox-service
 spec:
   selector:
     app:  sandbox
