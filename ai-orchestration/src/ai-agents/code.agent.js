@@ -14,13 +14,4 @@ const agent = createAgent({
     tools: [ listFiles, readFiles, updateFiles ]
 });
 
-const result = await agent.invoke({
-    messages: [
-        {
-            role: "user",
-            content: "You have access to tools to inspect and modify project files. Please inspect the project files and build a snake game using React and tailwind css. The game should be playable."
-        }
-    ]
-});
-
-console.log(result);
+export default agent;

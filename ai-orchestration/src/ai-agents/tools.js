@@ -11,7 +11,7 @@ export const listFiles = tool(
 
         const response = await axios.get("http://localhost/list-files", {
             headers: {
-                host: "01a0f76d-403a-7306-b8e6-585a2a9efe11.agent.localhost"
+                host: "01a0fced-7935-7696-86ab-f6ab8ffdafb5.agent.localhost"
             }
         })
 
@@ -37,7 +37,7 @@ export const readFiles = tool(
 
         const response = await axios.get("http://localhost/read-files?files=" + files.join(","), {
             headers: {
-                host: "01a0f76d-403a-7306-b8e6-585a2a9efe11.agent.localhost"
+                host: "01a0fced-7935-7696-86ab-f6ab8ffdafb5.agent.localhost"
             }
         })
 
@@ -65,7 +65,7 @@ export const updateFiles = tool(
 
         const response = await axios.patch("http://localhost/update-files", { updates: files }, {
             headers: {
-                host: "01a0f76d-403a-7306-b8e6-585a2a9efe11.agent.localhost"
+                host: "01a0fced-7935-7696-86ab-f6ab8ffdafb5.agent.localhost"
             }
         })
 
