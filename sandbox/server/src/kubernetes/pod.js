@@ -21,7 +21,7 @@ export const createPod = async (sandboxId) => {
                 {
                     name: "init-container",
                     image:"template",
-                    imagePullPolicy: "Always",
+                    imagePullPolicy: "IfNotPresent",
                     command: [ "sh", "-c", "cp -r /workspace/. /seed/" ],
                     volumeMounts: [
                         {
@@ -34,7 +34,7 @@ export const createPod = async (sandboxId) => {
             containers: [
                 {
                     image: "template",
-                    imagePullPolicy: "Always",
+                    imagePullPolicy: "IfNotPresent",
                     name: "sandbox-container",
                     ports: [{ containerPort: 5173, name: "http" }],
                     resources: {
@@ -50,7 +50,7 @@ export const createPod = async (sandboxId) => {
                 },
                 {
                     image: "agent",
-                    imagePullPolicy: "Always",
+                    imagePullPolicy: "IfNotPresent",
                     name: "agent-container",
                     ports: [{ containerPort: 3000, name: "http" }],
                     resources: {
