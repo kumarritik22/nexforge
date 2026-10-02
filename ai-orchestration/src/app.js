@@ -10,4 +10,8 @@ app.get("/api/ai/healthz", (req, res) => {
     res.status(200).json({ status: "ok" })
 });
 
+app.get("/api/ai/readyz", (req, res) => {
+    res.status(200).json({ status: "ready" })
+});
+
 export default app;
