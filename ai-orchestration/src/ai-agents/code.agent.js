@@ -11,8 +11,7 @@ const model = new ChatMistralAI({
 
 const agent = (createAgent({
     model,
-    tools: [ listFiles, readFiles, updateFiles ],
-    systemPrompt: ``
+    tools: [ listFiles, readFiles, updateFiles ]
 })).withConfig({
     recursionLimit: 100
 })

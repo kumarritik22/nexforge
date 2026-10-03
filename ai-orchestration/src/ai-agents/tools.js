@@ -9,11 +9,7 @@ export const listFiles = tool(
         console.log("Using list files tool")
         console.log("============================")
 
-        const response = await axios.get("http://sandbox-service/list-files", {
-            headers: {
-                host: "01a10049-e05a-725f-9ca2-61dce700c9fc:3000"
-            }
-        })
+        const response = await axios.get("http://sandbox-service-01a1008c-5eb2-7656-9b05-839d16ec21eb:3000/list-files")
 
         console.log("============================")
         console.log("response from list files tool", response.data)
@@ -35,11 +31,7 @@ export const readFiles = tool(
         console.log("using read files tool with files", files)
         console.log("============================")
 
-        const response = await axios.get("http://sandbox-service/read-files?files=" + files.join(","), {
-            headers: {
-                host: "01a10049-e05a-725f-9ca2-61dce700c9fc:3000"
-            }
-        })
+        const response = await axios.get("http://sandbox-service-01a1008c-5eb2-7656-9b05-839d16ec21eb:3000/read-files?files=" + files.join(","))
 
         console.log("============================")
         console.log("response from read files tool", response.data)
@@ -63,11 +55,7 @@ export const updateFiles = tool(
         console.log("using update files tool with files", files)
         console.log("============================")
 
-        const response = await axios.patch("http://sandbox-service/update-files", { updates: files }, {
-            headers: {
-                host: "01a10049-e05a-725f-9ca2-61dce700c9fc:3000"
-            }
-        })
+        const response = await axios.patch("http://sandbox-service-01a1008c-5eb2-7656-9b05-839d16ec21eb:3000/update-files", { updates: files })
 
         console.log("============================")
         console.log("response from update files tool", response.data)
