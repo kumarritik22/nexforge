@@ -6,7 +6,7 @@ const agentRouter = Router();
 agentRouter.post("/invoke", async (req, res) => {
     try {
         const { message, projectId } = req.body;
-        const response = await agent.invoke(
+        const response = await agent.stream(
             {
                 messages: [{
                     role: "user",
@@ -16,8 +16,14 @@ agentRouter.post("/invoke", async (req, res) => {
             {
                 context: {
                     projectId
-                }
+                },
+                streamMode: "custom"
             });
+
+        for await (const chunk of response) {
+            console.log(chunk)
+        }
+
         res.json({ response });
     } catch (error) {
         console.error("Error invoking agent:", error);
