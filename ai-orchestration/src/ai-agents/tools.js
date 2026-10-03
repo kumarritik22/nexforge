@@ -9,9 +9,9 @@ export const listFiles = tool(
         console.log("Using list files tool")
         console.log("============================")
 
-        const response = await axios.get("http://localhost/list-files", {
+        const response = await axios.get("http://sandbox-service/list-files", {
             headers: {
-                host: "01a0fced-7935-7696-86ab-f6ab8ffdafb5.agent.localhost"
+                host: "01a10049-e05a-725f-9ca2-61dce700c9fc:3000"
             }
         })
 
@@ -35,9 +35,9 @@ export const readFiles = tool(
         console.log("using read files tool with files", files)
         console.log("============================")
 
-        const response = await axios.get("http://localhost/read-files?files=" + files.join(","), {
+        const response = await axios.get("http://sandbox-service/read-files?files=" + files.join(","), {
             headers: {
-                host: "01a0fced-7935-7696-86ab-f6ab8ffdafb5.agent.localhost"
+                host: "01a10049-e05a-725f-9ca2-61dce700c9fc:3000"
             }
         })
 
@@ -63,9 +63,9 @@ export const updateFiles = tool(
         console.log("using update files tool with files", files)
         console.log("============================")
 
-        const response = await axios.patch("http://localhost/update-files", { updates: files }, {
+        const response = await axios.patch("http://sandbox-service/update-files", { updates: files }, {
             headers: {
-                host: "01a0fced-7935-7696-86ab-f6ab8ffdafb5.agent.localhost"
+                host: "01a10049-e05a-725f-9ca2-61dce700c9fc:3000"
             }
         })
 

@@ -15,6 +15,6 @@ app.get("/api/ai/readyz", (req, res) => {
     res.status(200).json({ status: "ready" })
 });
 
-app.use("api/ai/agent", agentRouter);
+app.use("/api/ai", agentRouter);
 
 export default app;

@@ -10,7 +10,7 @@ agentRouter.post("/invoke", async (req, res) => {
             role: "user",
             content: message
         }] });
-        res.join({ response });
+        res.json({ response });
     } catch (error) {
         console.error("Error invoking agent:", error);
         res.status(500).json({ error: "Failed to invoke agent" });

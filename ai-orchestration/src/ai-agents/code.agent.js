@@ -9,9 +9,12 @@ const model = new ChatMistralAI({
     temperature: 0
 });
 
-const agent = createAgent({
+const agent = (createAgent({
     model,
-    tools: [ listFiles, readFiles, updateFiles ]
-});
+    tools: [ listFiles, readFiles, updateFiles ],
+    systemPrompt: ``
+})).withConfig({
+    recursionLimit: 100
+})
 
 export default agent;
