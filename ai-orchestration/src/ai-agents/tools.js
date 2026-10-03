@@ -4,12 +4,12 @@ import * as z from "zod";
 
 
 export const listFiles = tool(
-    async ({}) => {
+    async ({}, config) => {
         console.log("============================")
         console.log("Using list files tool")
         console.log("============================")
 
-        const response = await axios.get("http://sandbox-service-01a1008c-5eb2-7656-9b05-839d16ec21eb:3000/list-files")
+        const response = await axios.get(`http://sandbox-service-${config.context.projectId}:3000/list-files`)
 
         console.log("============================")
         console.log("response from list files tool", response.data)
@@ -26,12 +26,12 @@ export const listFiles = tool(
 
 
 export const readFiles = tool(
-    async ({ files = [] }) => {
+    async ({ files = [] }, config) => {
         console.log("============================")
         console.log("using read files tool with files", files)
         console.log("============================")
 
-        const response = await axios.get("http://sandbox-service-01a1008c-5eb2-7656-9b05-839d16ec21eb:3000/read-files?files=" + files.join(","))
+        const response = await axios.get(`http://sandbox-service-${config.context.projectId}:3000/read-files?files=` + files.join(","))
 
         console.log("============================")
         console.log("response from read files tool", response.data)
@@ -50,12 +50,12 @@ export const readFiles = tool(
 
 
 export const updateFiles = tool(
-    async ({ files }) => {
+    async ({ files }, config) => {
         console.log("============================")
         console.log("using update files tool with files", files)
         console.log("============================")
 
-        const response = await axios.patch("http://sandbox-service-01a1008c-5eb2-7656-9b05-839d16ec21eb:3000/update-files", { updates: files })
+        const response = await axios.patch(`http://sandbox-service-${config.context.projectId}:3000/update-files`, { updates: files })
 
         console.log("============================")
         console.log("response from update files tool", response.data)
