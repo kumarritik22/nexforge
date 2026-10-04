@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 const io = new Server(httpServer, {
     cors: {
         origin: "*",
-        methods: [ "GET", "POST", "PATCH" ]
+        methods: [ "GET", "POST", "PATCH", "DELETE" ]
     }
 });
 
