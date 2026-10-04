@@ -5,7 +5,6 @@ import path from "path";
 import { Server } from "socket.io";
 import http from "http";
 import pty from "node-pty";
-import os from "os";
 
 
 const app = express();
