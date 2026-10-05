@@ -5,6 +5,7 @@ import path from "path";
 import { Server } from "socket.io";
 import http from "http";
 import pty from "node-pty";
+import os from "os";
 
 
 const app = express();
@@ -19,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 const io = new Server(httpServer, {
     cors: {
         origin: "*",
-        methods: [ "GET", "POST", "PATCH", "DELETE" ]
+        methods: [ "GET", "POST", "PATCH" ]
     }
 });
 
