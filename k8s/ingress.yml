@@ -41,7 +41,7 @@ spec:
                 number: 80
 
 
-    - host: "*.preview.localhost"
+    - host: "*.preview.localtest.me"
       http:
         paths:
         - pathType: Prefix
@@ -53,7 +53,7 @@ spec:
                 number: 80
 
 
-    - host: "*.agent.localhost"
+    - host: "*.agent.localtest.me"
       http:
         paths:
         - pathType: Prefix
