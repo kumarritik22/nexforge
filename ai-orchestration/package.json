@@ -22,5 +22,8 @@
     "morgan": "^1.12.1",
     "nodemon": "^3.1.14",
     "zod": "^4.6.5"
+  },
+  "dependencies": {
+    "@langchain/google-genai": "^2.3.2"
   }
 }
