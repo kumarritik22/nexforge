@@ -7,6 +7,14 @@ import { createProxyServer } from "httpxy";
 const app = express();
 const server = http.createServer(app);
 
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "*");
+    if (req.method === "OPTIONS") return res.sendStatus(200);
+    next();
+});
+
 app.use(morgan("combined"));
 
 app.get("/api/status/healthz", (req, res) => {
