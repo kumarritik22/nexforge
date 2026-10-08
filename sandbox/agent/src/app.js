@@ -5,17 +5,21 @@ import path from "path";
 import { Server } from "socket.io";
 import http from "http";
 import pty from "node-pty";
-import os from "os";
-
+import cors from "cors";
 
 const app = express();
 const httpServer = http.createServer(app);
 
 const WORKING_DIR = "/workspace";
 
-app.use(express.json());
 app.use(morgan("dev"));
+app.use(cors ({
+    methods: [ "GET", "POST", "PATCH", "PUT", "DELETE" ],
+    origin: "*"
+}));
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 
 const io = new Server(httpServer, {
     cors: {
