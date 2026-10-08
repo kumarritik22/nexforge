@@ -2,7 +2,6 @@ import axios from "axios";
 import { tool } from "langchain";
 import * as z from "zod";
 
-
 export const listFiles = tool(
     async ({}, config) => {
 
