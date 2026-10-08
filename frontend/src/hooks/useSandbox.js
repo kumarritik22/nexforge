@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
 
-const SANDBOX_API_BASE = 'http://localhost/api/sandbox';
+const SANDBOX_API_BASE = '/api/sandbox';
 
 /**
  * useSandbox - Hook for managing sandbox lifecycle and file system operations
@@ -26,7 +26,7 @@ export function useSandbox() {
     setError(null);
 
     try {
-      const { data } = await axios.post(`${SANDBOX_API_BASE}/start/`);
+      const { data } = await axios.post(`${SANDBOX_API_BASE}/start`);
       setSandboxId(data.sandboxId);
       setPreviewUrl(data.previewUrl);
       setSandboxStatus('live');

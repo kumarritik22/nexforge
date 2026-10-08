@@ -17,7 +17,7 @@ export function useSSEStream() {
     abortControllerRef.current = controller;
 
     try {
-      const response = await fetch('http://localhost/api/ai/invoke', {
+      const response = await fetch('/api/ai/invoke', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
