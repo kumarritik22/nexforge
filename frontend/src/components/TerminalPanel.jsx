@@ -39,7 +39,7 @@ const TerminalPanel = ({ sandboxId }) => {
     terminalInstanceRef.current?.write(data);
   }, []);
 
-  const { sendInput, socket } = useTerminalSocket({
+  const { sendInput, isConnected } = useTerminalSocket({
     sandboxId,
     onOutput: handleOutput,
     enabled: !!sandboxId,
@@ -112,8 +112,6 @@ const TerminalPanel = ({ sandboxId }) => {
       } catch {}
     }, 100);
   }, [sandboxId]);
-
-  const isConnected = socket.current?.connected ?? false;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>

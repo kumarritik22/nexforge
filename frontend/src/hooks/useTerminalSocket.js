@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { io } from 'socket.io-client';
 
 /**
@@ -12,9 +12,11 @@ export function useTerminalSocket({ sandboxId, onOutput, enabled = true }) {
   const sandboxIdRef = useRef(sandboxId);
   sandboxIdRef.current = sandboxId;
 
+  const [isConnected, setIsConnected] = useState(false)
+
   const sendInput = useCallback((data) => {
     if (socketRef.current?.connected) {
-      socketRef.current.emit('terminal-input', { data });
+      socketRef.current.emit('terminal-input', data);
     }
   }, []);
 
@@ -36,6 +38,7 @@ export function useTerminalSocket({ sandboxId, onOutput, enabled = true }) {
     });
 
     socket.on('connect', () => {
+      setIsConnected(true);
       onOutput?.(`\x1b[32m✓ Connected to sandbox terminal\x1b[0m\r\n`);
     });
 
@@ -44,10 +47,12 @@ export function useTerminalSocket({ sandboxId, onOutput, enabled = true }) {
     });
 
     socket.on('disconnect', (reason) => {
+      setIsConnected(false);
       onOutput?.(`\x1b[33m⚠ Terminal disconnected: ${reason}\x1b[0m\r\n`);
     });
 
     socket.on('connect_error', (err) => {
+      setIsConnected(false);
       onOutput?.(`\x1b[31m✗ Connection error: ${err.message}\x1b[0m\r\n`);
     });
 
@@ -64,7 +69,7 @@ export function useTerminalSocket({ sandboxId, onOutput, enabled = true }) {
     return () => disconnect();
   }, [connect, disconnect]);
 
-  return { sendInput, connect, disconnect, socket: socketRef };
+  return { sendInput, connect, disconnect, socket: socketRef, isConnected };
 }
 
 export default useTerminalSocket;
