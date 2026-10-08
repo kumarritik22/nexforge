@@ -62,6 +62,8 @@ function App() {
     loadingFiles,
     error: sandboxError,
     startSandbox,
+    waitForSandboxReady,
+    setSandboxStatus,
     listFiles,
     readFile,
   } = useSandbox();
@@ -91,23 +93,35 @@ function App() {
   // Launch a new sandbox
   const handleLaunchSandbox = useCallback(async () => {
     try {
+      // Trigger pod creation in K8s
       const data = await startSandbox();
       setView('studio');
+
       addMessage({
         role: 'agent',
-        content: `✅ **Sandbox ready!**\n\nYour sandbox \`${data.sandboxId.slice(0, 8)}...\` is now live.\n\n- **Preview URL:** [Open Preview](${data.previewUrl})\n\nDescribe what you want to build and I'll get started!`,
+        content: `⏳ **Provisioning sandbox environment...**\n\nStarting containers for \`${data.sandboxId.slice(0, 8)}...\`. Please wait a few seconds.`,
         streaming: false,
       });
-      // Load files automatically
-      await listFiles(data.sandboxId);
-    } catch (err) {
+
+      // Poll until the container is actually running and accepting connections
+      await waitForSandboxReady(data.sandboxId);
+
+      // Mark as live and notify user
+      setSandboxStatus("live");
       addMessage({
         role: 'agent',
-        content: `❌ **Failed to start sandbox:** ${err.message}\n\nPlease ensure the backend is running and try again.`,
+        content: `✅ **Sandbox is now live!**\n\n- **Preview URL:** [Open Preview](${data.previewUrl})\n\nDescribe what you want to build and I'll get started!`,
+        streaming: false,
+      });
+    } catch (err) {
+      setSandboxStatus("error")
+      addMessage({
+        role: 'agent',
+        content: `❌ **Failed to start sandbox:** ${err.message}\n\nPlease check if your Kubernetes cluster has sufficient resources.`,
         streaming: false,
       });
     }
-  }, [startSandbox, addMessage, listFiles]);
+  }, [startSandbox, waitForSandboxReady, addMessage, setSandboxStatus]);
 
   // Open an existing sandbox from recents
   const handleOpenStudio = useCallback(
@@ -275,6 +289,7 @@ function App() {
           <WorkspacePanel
             sandboxId={sandboxId}
             previewUrl={previewUrl}
+            sandboxStatus={sandboxStatus}
             files={files}
             loadingFiles={loadingFiles}
             selectedFile={selectedFile}

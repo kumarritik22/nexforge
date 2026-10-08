@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { Monitor, Smartphone, Tablet, RefreshCw, ExternalLink } from 'lucide-react';
+import { Monitor, Smartphone, Tablet, RefreshCw, ExternalLink, Loader2 } from 'lucide-react';
 
 const DEVICE_MODES = [
   { key: 'desktop', label: 'Desktop', icon: Monitor, width: '100%' },
@@ -7,7 +7,7 @@ const DEVICE_MODES = [
   { key: 'mobile', label: 'Mobile', icon: Smartphone, width: '375px' },
 ];
 
-const LivePreviewPanel = ({ sandboxId, previewUrl }) => {
+const LivePreviewPanel = ({ sandboxId, previewUrl, sandboxStatus = 'idle' }) => {
   const [deviceMode, setDeviceMode] = useState('desktop');
   const [refreshKey, setRefreshKey] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -197,6 +197,41 @@ const LivePreviewPanel = ({ sandboxId, previewUrl }) => {
               </p>
               <p style={{ color: '#3f3f46', fontSize: '12px' }}>
                 Start a sandbox to see your live preview
+              </p>
+            </div>
+          </div>
+        ) : sandboxStatus === 'provisioning' ? (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              gap: '14px',
+              width: '100%',
+            }}
+          >
+            <div
+              style={{
+                width: '56px',
+                height: '56px',
+                borderRadius: '16px',
+                background: 'rgba(99,102,241,0.12)',
+                border: '1px solid rgba(99,102,241,0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Loader2 size={24} color="#818cf8" className="animate-spin-slow" />
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ color: '#fafafa', fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}>
+                Booting Sandbox Environment...
+              </p>
+              <p style={{ color: '#71717a', fontSize: '12px', maxWidth: '300px' }}>
+                Starting container and Vite dev server. Your preview will appear automatically in a few seconds.
               </p>
             </div>
           </div>

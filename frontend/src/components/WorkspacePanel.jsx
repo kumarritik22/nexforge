@@ -13,6 +13,7 @@ const TABS = [
 const WorkspacePanel = ({
   sandboxId,
   previewUrl,
+  sandboxStatus,
   files,
   loadingFiles,
   selectedFile,
@@ -101,7 +102,11 @@ const WorkspacePanel = ({
       {/* Tab Content */}
       <div style={{ flex: 1, overflow: 'hidden' }} className="tab-content-enter">
         {activeTab === 'preview' && (
-          <LivePreviewPanel sandboxId={sandboxId} previewUrl={previewUrl} />
+          <LivePreviewPanel 
+            sandboxId={sandboxId} 
+            previewUrl={previewUrl} 
+            sandboxStatus={sandboxStatus} 
+          />
         )}
         {activeTab === 'terminal' && (
           <TerminalPanel sandboxId={sandboxId} />

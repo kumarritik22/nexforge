@@ -29,12 +29,10 @@ export function useSandbox() {
       const { data } = await axios.post(`${SANDBOX_API_BASE}/start`);
       setSandboxId(data.sandboxId);
       setPreviewUrl(data.previewUrl);
-      setSandboxStatus('live');
       return data;
     } catch (err) {
       const msg = err.response?.data?.message ?? err.message;
       setError(msg);
-      setSandboxStatus('error');
       throw err;
     }
   }, []);
@@ -111,6 +109,24 @@ export function useSandbox() {
     [sandboxId, agentBase]
   );
 
+  // Poll agent until the container is ready and accepting requests
+
+  const waitForSandboxReady = useCallback(async (id, maxRetries = 15, intervalMs = 1500) => {
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        const { data } = await axios.get(`${agentBase(id)}/list-files`, { timeout: 2000 });
+        if (data && data.files) {
+          setFiles(data.files);
+          return true;
+        }
+      } catch (error) {
+        // Still booting, wait and retry
+        await new Promise((res) => setTimeout(res, intervalMs));
+      }
+    }
+    throw new Error(`Sandbox startup timed out. Please check container logs.`);
+  }, [agentBase]);
+
   return {
     sandboxId,
     previewUrl,
@@ -119,6 +135,7 @@ export function useSandbox() {
     loadingFiles,
     error,
     startSandbox,
+    waitForSandboxReady,
     listFiles,
     readFile,
     updateFiles,
