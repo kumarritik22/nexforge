@@ -6,9 +6,8 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    cors: {
-      origin: /^https?:\/\/(?:.+\.)?localhost(?::\d+)?$/
-    },
+    host: "0.0.0.0",
+    port: "5173",
     proxy: {
       "/api": {
         target: "http://localhost",
@@ -17,4 +16,4 @@ export default defineConfig({
       }
     }
   }
-})
+});
