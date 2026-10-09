@@ -42,6 +42,17 @@ spec:
                 number: 80
 
 
+    - http:
+        paths:
+        - pathType: Prefix
+          path: "/api/auth"
+          backend:
+            service:
+              name: auth-service
+              port: 
+                number: 80
+
+
     - host: "*.preview.localtest.me"
       http:
         paths:
