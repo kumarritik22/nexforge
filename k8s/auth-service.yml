@@ -1,14 +1,14 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name:  sandbox-service
+  name:  auth-service
   labels:
-    app: sandbox
+    app: auth
 spec:
   selector:
-    app:  sandbox
+    app:  auth
   type:  ClusterIP
   ports:
-  - name:  main-sandbox-port
+  - name:  auth-http
     port:  80
     targetPort:  3000

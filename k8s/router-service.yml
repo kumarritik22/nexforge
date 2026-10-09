@@ -3,7 +3,7 @@ apiVersion: v1
 metadata:
   name:  router-service
   labels:
-    name: router-service
+    app: router
 spec:
   selector:
     app:  router

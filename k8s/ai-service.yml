@@ -3,7 +3,7 @@ apiVersion: v1
 metadata:
   name:  ai-service
   labels:
-    name: ai-service
+    app: ai-server
 spec:
   selector:
     app:  ai-server
