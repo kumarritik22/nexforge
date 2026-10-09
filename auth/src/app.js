@@ -1,10 +1,10 @@
 import "dotenv/config";
 import express from "express";
 import morgan from "morgan";
-import jwt from "jsonwebtoken";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import cookies from "cookie-parser";
+import authRoutes from "./routes/auth.routes.js";
 
 const app = express();
 
@@ -27,5 +27,7 @@ passport.use(new GoogleStrategy({
 }, (accessToken, refreshToken, profile, done) => {
     return done (null, profile)
 }));
+
+app.use("/api/auth", authRoutes);
 
 export default app;
