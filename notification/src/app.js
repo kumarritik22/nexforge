@@ -10,4 +10,8 @@ app.get("/", (req, res) => {
     res.send("Hello from notification service.");
 });
 
+app.get("/_status/healthz", (req, res) => {
+    res.status(200).json({ status: "ok" });
+});
+
 export default app;
