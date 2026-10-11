@@ -10,3 +10,12 @@ export const createSandboxKey = async (sandboxId) => {
     }), "EX", 120)
 };
 
+subscriber.config("SET", "notify-keyspace-events", "EX");
+
+subscriber.subscribe("_keyevent@o_:expired");
+
+subscriber.on("message", (channel, key) => {
+    console.log(`Key expired: ${key}`)
+});
+
+export default subscriber;
