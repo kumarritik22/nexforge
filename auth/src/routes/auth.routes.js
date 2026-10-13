@@ -1,6 +1,7 @@
 import { Router } from "express";
 import passport from "passport";
 import userModel from "../models/user.model.js";
+import { sendAuthNotification } from "../config/mq.js";
 
 const router = Router();
 
@@ -11,6 +12,13 @@ router.get("/google/callback", passport.authenticate("google", { session: false,
         const { id, displayName, emails, photos } = req.user;
 
         const user = await userModel.findOne({ googleId: id });
+
+        await sendAuthNotification({ 
+            userId: user._id,
+            action: "google_login",
+            timestamps: new Date(),
+            email: emails[ 0 ].value
+        });
 
         if (!user) {
             user = new userModel({
