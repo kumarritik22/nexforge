@@ -3,6 +3,7 @@ import morgan from "morgan";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import http from "http";
 import { createProxyServer } from "httpxy";
+import { refreshTTL } from "./config/redis.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -63,15 +64,26 @@ wsProxy.on("error", (err, req, socket) => {
 });
 
 
-app.use((req, res, next) => {
+app.use( async (req, res, next) => {
     const host = req.headers.host;
-    const sandboxId = host.split(".")[ 0 ];
+    if (!host) {
+        return next();
+    }
 
-    if (host.split(".")[ 1 ] === "agent") {
+    const sandboxId = host.split(".")[ 0 ];
+    const type = host.split(".")[ 1 ];
+
+    if (sandboxId && (type === "agent" || type === "preview")) {
+        refreshTTL(sandboxId).catch((error) => console.error("TTL refresh error:", error.message));
+    }
+
+    if (type === "agent") {
         return getAgentProxy(sandboxId) (req, res, next);
-    } else if (host.split(".")[ 1 ] === "preview") {
+    } else if (type === "preview") {
         return getProxy(sandboxId) (req, res, next);
     }
+
+    next();
 });
 
 server.on("upgrade", (req, socket, head) => {
@@ -86,16 +98,22 @@ server.on("upgrade", (req, socket, head) => {
     socket.on("error", () => socket.destroy())
 
     const sandboxId = host.split(".")[ 0 ];
-    const type = host.split(".")[ 1 ]
+    const type = host.split(".")[ 1 ];
 
     console.log(`WS upgrade request: ${host}, sandboxId: ${sandboxId}, type: ${type}`);
+
+    refreshTTL(sandboxId).catch(() => {});
+
+    socket.on("data", () => {
+        refreshTTL(sandboxId).catch(() => {});
+    });
 
     if (type === "agent") {
         wsProxy.ws(req, socket, { target: `http://sandbox-service-${sandboxId}:3000` }, head)
             .catch(() => socket.destroy());
     } else if (type === "preview") {
         wsProxy.ws(req, socket, { target: `http://sandbox-service-${sandboxId}` }, head)
-        .catch(() => socket.destroy());
+            .catch(() => socket.destroy());
     } else {
         socket.destroy();
     }
