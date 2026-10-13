@@ -5,14 +5,14 @@ const redis = new Redis(process.env.REDIS_URL);
 const subscriber = new Redis(process.env.REDIS_URL);
 
 export const createSandboxKey = async (sandboxId) => {
-    await redis.set(`sandbox: ${sandboxId}`, JSON.stringify({
+    await redis.set(`sandbox:${sandboxId}`, JSON.stringify({
         status: "active"
     }), "EX", 120)
 };
 
-subscriber.config("SET", "notify-keyspace-events", "EX");
+subscriber.config("SET", "notify-keyspace-events", "Ex");
 
-subscriber.subscribe("_keyevent@o_:expired");
+subscriber.subscribe("__keyevent@0__:expired");
 
 subscriber.on("message", (channel, key) => {
     console.log(`Key expired: ${key}`)
