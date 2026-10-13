@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
-    service: gmail,
+    service: "gmail",
     auth: {
         type: "OAuth2",
         user: process.env.EMAIL_USER,
