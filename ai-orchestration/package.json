@@ -24,6 +24,7 @@
     "zod": "^4.6.5"
   },
   "dependencies": {
-    "@langchain/google-genai": "^2.3.2"
+    "@langchain/google-genai": "^2.3.2",
+    "mongoose": "^9.11.2"
   }
 }

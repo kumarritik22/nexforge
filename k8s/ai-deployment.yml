@@ -25,12 +25,6 @@ spec:
           limits:
             cpu: "500m"
             memory: "256M"
-        env:
-          - name: GEMINI_API_KEY
-            valueFrom: 
-              secretKeyRef:
-                name: ai-secret
-                key: GEMINI_API_KEY
         livenessProbe:
           httpGet:
             path: /api/ai/healthz
@@ -42,7 +36,20 @@ spec:
             path: /api/ai/readyz
             port: 3000
           initialDelaySeconds: 30
-          timeoutSeconds: 10      
+          timeoutSeconds: 10
+        env:
+          - name: GEMINI_API_KEY
+            valueFrom: 
+              secretKeyRef:
+                name: ai-secret
+                key: GEMINI_API_KEY
+          
+          - name: MONGO_URI
+            valueFrom: 
+              secretKeyRef:
+                name: database
+                key: AI
+
         ports:
         - containerPort:  3000
           name:  ai-server-port
