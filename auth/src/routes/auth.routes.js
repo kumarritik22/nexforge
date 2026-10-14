@@ -35,7 +35,7 @@ router.get("/google/callback", passport.authenticate("google", { session: false,
         const token = jwt.sign({ id: user._id, }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
         res.cookie("token", token, { httpOnly: true });
-        res.redirect("/");
+        res.redirect("http://localhost:5173");
     } catch (error) {
         console.error("Error during Google authenticaion:", error);
         res.redirect("/");
