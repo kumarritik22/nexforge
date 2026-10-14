@@ -1,10 +1,7 @@
 import express from "express";
 import morgan from "morgan";
-import { createPod } from "./kubernetes/pod.js";
-import { createService } from "./kubernetes/service.js";
-import { v7 as uuid } from "uuid"; 
-import { createSandboxKey } from "./config/redis.js";
 import cookieParser from "cookie-parser";
+import SandboxRouter from "./routes/sandbox.routes.js";
 
 const app = express();
 
@@ -20,20 +17,6 @@ app.get("/api/sandbox/health", (req, res) => {
     });
 });
 
-app.post("/api/sandbox/start", async (req, res) => {
-    const sandboxId = uuid();
-
-    await Promise.all([
-        createPod(sandboxId),
-        createService(sandboxId),
-        createSandboxKey(sandboxId)
-    ]);
-
-    return res.status(201).json({
-        message: "Sandbox environment created successfully.",
-        sandboxId,
-        previewUrl: `http://${sandboxId}.preview.localtest.me`
-    });
-});
+app.use("/api/sandbox", SandboxRouter);
 
 export default app;
