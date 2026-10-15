@@ -42,6 +42,7 @@ const StudioHeader = ({
   sandboxStatus = 'idle',
   onNewSandbox,
   onRestart,
+  projectTitle,
 }) => {
   const status = STATUS_CONFIG[sandboxStatus] ?? STATUS_CONFIG.idle;
   const truncatedId = sandboxId
@@ -74,8 +75,27 @@ const StudioHeader = ({
         }}
       />
 
-      {/* Sandbox ID + Status */}
+      {/* Project Title + Sandbox ID + Status */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+        {projectTitle ? (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '3px 10px',
+              borderRadius: '6px',
+              background: 'rgba(99, 102, 241, 0.1)',
+              border: '1px solid rgba(99, 102, 241, 0.25)',
+              color: '#a5b4fc',
+              fontSize: '12px',
+              fontWeight: 600,
+            }}
+          >
+            <span>📁 {projectTitle}</span>
+          </div>
+        ) : null}
+
         {sandboxId ? (
           <div
             style={{

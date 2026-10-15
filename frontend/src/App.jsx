@@ -38,21 +38,8 @@ function App() {
   const [streaming, setStreaming] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileContent, setFileContent] = useState(undefined);
-  const [recentSandboxes] = useState([
-    // Sample recent sandboxes for demo
-    {
-      id: 'b2c34567-1234-5678-90ab-cdef01234567',
-      status: 'idle',
-      template: 'Next.js',
-      createdAt: '2 hours ago',
-    },
-    {
-      id: 'e8f9a012-abcd-ef01-2345-678901234567',
-      status: 'error',
-      template: 'Vue',
-      createdAt: '1 day ago',
-    },
-  ]);
+  const [currentProject, setCurrentProject] = useState(null);
+  const [launchingProjectId, setLaunchingProjectId] = useState(null);
 
   const {
     sandboxId,
@@ -90,16 +77,23 @@ function App() {
     });
   }, []);
 
-  // Launch a new sandbox
-  const handleLaunchSandbox = useCallback(async () => {
+  // Launch a sandbox for a given project
+  const handleLaunchSandbox = useCallback(async (project) => {
+    if (!project || !project._id) return;
+    const projectId = project._id;
+    const projectTitle = project.title || 'Untitled Project';
+
+    setLaunchingProjectId(projectId);
+    setCurrentProject(project);
+
     try {
-      // Trigger pod creation in K8s
-      const data = await startSandbox();
+      // Trigger pod creation in K8s with projectId
+      const data = await startSandbox(projectId);
       setView('studio');
 
       addMessage({
         role: 'agent',
-        content: `⏳ **Provisioning sandbox environment...**\n\nStarting containers for \`${data.sandboxId.slice(0, 8)}...\`. Please wait a few seconds.`,
+        content: `⏳ **Provisioning sandbox for "${projectTitle}"...**\n\nStarting Kubernetes containers (\`${data.sandboxId.slice(0, 8)}...\`) connected to S3 storage. Please wait a moment.`,
         streaming: false,
       });
 
@@ -110,31 +104,20 @@ function App() {
       setSandboxStatus("live");
       addMessage({
         role: 'agent',
-        content: `✅ **Sandbox is now live!**\n\n- **Preview URL:** [Open Preview](${data.previewUrl})\n\nDescribe what you want to build and I'll get started!`,
+        content: `✅ **Sandbox for "${projectTitle}" is now live!**\n\n- **Project ID:** \`${projectId}\`\n- **Preview URL:** [Open Preview](${data.previewUrl})\n\nDescribe what you want to build and I'll get started!`,
         streaming: false,
       });
     } catch (err) {
-      setSandboxStatus("error")
+      setSandboxStatus("error");
       addMessage({
         role: 'agent',
-        content: `❌ **Failed to start sandbox:** ${err.message}\n\nPlease check if your Kubernetes cluster has sufficient resources.`,
+        content: `❌ **Failed to start sandbox for "${projectTitle}":** ${err.message}\n\nPlease check container logs.`,
         streaming: false,
       });
+    } finally {
+      setLaunchingProjectId(null);
     }
   }, [startSandbox, waitForSandboxReady, addMessage, setSandboxStatus]);
-
-  // Open an existing sandbox from recents
-  const handleOpenStudio = useCallback(
-    (sandbox) => {
-      setView('studio');
-      addMessage({
-        role: 'agent',
-        content: `🔄 **Opened sandbox** \`${sandbox.id.slice(0, 8)}...\`\n\nWhat would you like to work on?`,
-        streaming: false,
-      });
-    },
-    [addMessage]
-  );
 
   // Send AI agent message
   const handleSendMessage = useCallback(
@@ -234,9 +217,8 @@ function App() {
       <div style={{ height: '100vh', overflow: 'auto', background: '#09090b' }}>
         <SandboxCreator
           onLaunchSandbox={handleLaunchSandbox}
-          recentSandboxes={recentSandboxes}
-          onOpenStudio={handleOpenStudio}
           sandboxStatus={sandboxStatus}
+          launchingProjectId={launchingProjectId}
         />
       </div>
     );
@@ -258,8 +240,9 @@ function App() {
         sandboxId={sandboxId}
         previewUrl={previewUrl}
         sandboxStatus={sandboxStatus}
+        projectTitle={currentProject?.title}
         onNewSandbox={() => setView('creator')}
-        onRestart={handleLaunchSandbox}
+        onRestart={() => handleLaunchSandbox(currentProject)}
       />
 
       {/* Main Content */}

@@ -1,13 +1,13 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
-
-const SANDBOX_API_BASE = '/api/sandbox';
+import { startSandboxApi } from '../api/sandbox.api.js';
 
 /**
  * useSandbox - Hook for managing sandbox lifecycle and file system operations
  */
 export function useSandbox() {
   const [sandboxId, setSandboxId] = useState(null);
+  const [activeProjectId, setActiveProjectId] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [sandboxStatus, setSandboxStatus] = useState('idle'); // idle | provisioning | live | error
   const [files, setFiles] = useState([]);
@@ -20,19 +20,24 @@ export function useSandbox() {
     [sandboxId]
   );
 
-  /** Start a new sandbox environment */
-  const startSandbox = useCallback(async () => {
+  /** Start a sandbox environment for a given projectId */
+  const startSandbox = useCallback(async (projectId) => {
+    if (!projectId) {
+      throw new Error('Project ID is required to start a sandbox');
+    }
     setSandboxStatus('provisioning');
     setError(null);
+    setActiveProjectId(projectId);
 
     try {
-      const { data } = await axios.post(`${SANDBOX_API_BASE}/start`);
+      const data = await startSandboxApi(projectId);
       setSandboxId(data.sandboxId);
       setPreviewUrl(data.previewUrl);
       return data;
     } catch (err) {
-      const msg = err.response?.data?.message ?? err.message;
+      const msg = err.message || 'Failed to start sandbox';
       setError(msg);
+      setSandboxStatus('error');
       throw err;
     }
   }, []);
@@ -140,6 +145,8 @@ export function useSandbox() {
     readFile,
     updateFiles,
     createFiles,
+    activeProjectId,
+    setActiveProjectId,
     setSandboxId,
     setPreviewUrl,
     setSandboxStatus,

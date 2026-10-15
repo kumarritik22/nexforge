@@ -1,6 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import NexforgeLogo from './NexforgeLogo.jsx';
-import { Plus, Zap, Globe, Box, Layers, MoreHorizontal, ExternalLink, Trash2, Loader2 } from 'lucide-react';
+import ProjectList from './ProjectList.jsx';
+import CreateProjectModal from './CreateProjectModal.jsx';
+import useProjects from '../hooks/useProjects.js';
+import { Zap, Loader2, Plus, Sparkles } from 'lucide-react';
 
 const TEMPLATES = [
   { id: 'react', label: 'React', color: '#22d3ee', description: 'Vite + React 19' },
@@ -10,16 +13,44 @@ const TEMPLATES = [
   { id: 'svelte', label: 'SvelteKit', color: '#ef4444', description: 'SvelteKit + Vite' },
 ];
 
-const STATUS_CONFIG = {
-  live: { color: '#10b981', label: 'Live', bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.25)' },
-  idle: { color: '#6b7280', label: 'Idle', bg: 'rgba(107,114,128,0.12)', border: 'rgba(107,114,128,0.25)' },
-  error: { color: '#ef4444', label: 'Error', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.25)' },
-  provisioning: { color: '#f59e0b', label: 'Provisioning', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.25)' },
-};
-
-const SandboxCreator = ({ onLaunchSandbox, recentSandboxes = [], onOpenStudio, sandboxStatus }) => {
+/**
+ * Layer 3: Feature / Smart Container Component - SandboxCreator
+ * Coordinates project fetching, project creation modal, and sandbox launching.
+ */
+const SandboxCreator = ({
+  onLaunchSandbox,
+  sandboxStatus = 'idle',
+  launchingProjectId = null,
+}) => {
   const [selectedTemplate, setSelectedTemplate] = useState('react');
-  const launching = sandboxStatus === 'provisioning';
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [createError, setCreateError] = useState(null);
+
+  // Layer 2: Custom domain hook for project state
+  const {
+    projects,
+    loading: loadingProjects,
+    creating,
+    error: projectsError,
+    fetchProjects,
+    createProject,
+  } = useProjects();
+
+  const isProvisioning = sandboxStatus === 'provisioning';
+
+  // Handle project creation from modal and immediately launch it
+  const handleCreateAndLaunch = async (title) => {
+    setCreateError(null);
+    try {
+      const newProject = await createProject(title);
+      setIsModalOpen(false);
+      if (onLaunchSandbox && newProject) {
+        await onLaunchSandbox(newProject);
+      }
+    } catch (err) {
+      setCreateError(err.message);
+    }
+  };
 
   return (
     <div
@@ -31,53 +62,49 @@ const SandboxCreator = ({ onLaunchSandbox, recentSandboxes = [], onOpenStudio, s
         overflow: 'auto',
       }}
     >
-      {/* Top Nav */}
+      {/* Top Navigation */}
       <nav
         style={{
           display: 'flex',
           alignItems: 'center',
           padding: '16px 32px',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
           flexShrink: 0,
         }}
       >
         <NexforgeLogo size={30} showText={true} />
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: '4px' }}>
-          {['Dashboard', 'Docs', 'Settings'].map((item) => (
-            <button
-              key={item}
-              style={{
-                padding: '5px 12px',
-                borderRadius: '6px',
-                border: 'none',
-                background: 'transparent',
-                color: '#71717a',
-                fontSize: '13px',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#fafafa';
-                e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#71717a';
-                e.currentTarget.style.background = 'transparent';
-              }}
-            >
-              {item}
-            </button>
-          ))}
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            disabled={isProvisioning}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              borderRadius: '8px',
+              border: '1px solid rgba(99, 102, 241, 0.3)',
+              background: 'rgba(99, 102, 241, 0.1)',
+              color: '#818cf8',
+              fontSize: '12px',
+              fontWeight: 600,
+              cursor: isProvisioning ? 'not-allowed' : 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <Plus size={14} />
+            <span>New Project</span>
+          </button>
         </div>
       </nav>
 
-      {/* Hero */}
+      {/* Hero Section */}
       <div
         style={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          padding: '60px 32px 40px',
+          padding: '50px 32px 30px',
           textAlign: 'center',
         }}
       >
@@ -88,9 +115,9 @@ const SandboxCreator = ({ onLaunchSandbox, recentSandboxes = [], onOpenStudio, s
             gap: '6px',
             padding: '4px 12px',
             borderRadius: '20px',
-            background: 'rgba(99,102,241,0.1)',
-            border: '1px solid rgba(99,102,241,0.25)',
-            marginBottom: '24px',
+            background: 'rgba(99, 102, 241, 0.1)',
+            border: '1px solid rgba(99, 102, 241, 0.25)',
+            marginBottom: '20px',
           }}
         >
           <Zap size={11} color="#818cf8" />
@@ -101,7 +128,7 @@ const SandboxCreator = ({ onLaunchSandbox, recentSandboxes = [], onOpenStudio, s
 
         <h1
           style={{
-            fontSize: '42px',
+            fontSize: '40px',
             fontWeight: 800,
             letterSpacing: '-0.04em',
             margin: '0 0 12px',
@@ -112,19 +139,19 @@ const SandboxCreator = ({ onLaunchSandbox, recentSandboxes = [], onOpenStudio, s
             lineHeight: 1.1,
           }}
         >
-          Your AI-Powered<br />Dev Sandbox
+          Your Cloud-Native<br />Dev Sandbox
         </h1>
 
         <p
           style={{
             fontSize: '15px',
             color: '#71717a',
-            maxWidth: '480px',
+            maxWidth: '500px',
             lineHeight: '1.6',
-            margin: '0 0 48px',
+            margin: '0 0 36px',
           }}
         >
-          Spin up isolated sandbox environments. Build, iterate, and deploy with AI assistance in seconds.
+          Spin up isolated Kubernetes workspaces synced automatically with AWS S3. Build, preview, and iterate with AI assistance.
         </p>
 
         {/* Launch Card */}
@@ -132,17 +159,21 @@ const SandboxCreator = ({ onLaunchSandbox, recentSandboxes = [], onOpenStudio, s
           style={{
             width: '100%',
             maxWidth: '600px',
-            padding: '28px',
+            padding: '24px',
             borderRadius: '16px',
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.09)',
+            background: 'rgba(255, 255, 255, 0.03)',
+            border: '1px solid rgba(255, 255, 255, 0.09)',
             backdropFilter: 'blur(12px)',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
+            marginBottom: '40px',
           }}
         >
-          <h2 style={{ fontSize: '15px', fontWeight: 600, color: '#e4e4e7', marginBottom: '16px', textAlign: 'left' }}>
-            Start New Sandbox
-          </h2>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+            <h2 style={{ fontSize: '14px', fontWeight: 600, color: '#e4e4e7', margin: 0 }}>
+              Start New Project
+            </h2>
+            <span style={{ fontSize: '11px', color: '#71717a' }}>Choose starting template</span>
+          </div>
 
           {/* Template Grid */}
           <div
@@ -150,7 +181,7 @@ const SandboxCreator = ({ onLaunchSandbox, recentSandboxes = [], onOpenStudio, s
               display: 'grid',
               gridTemplateColumns: 'repeat(5, 1fr)',
               gap: '8px',
-              marginBottom: '20px',
+              marginBottom: '18px',
             }}
           >
             {TEMPLATES.map(({ id, label, color, description }) => {
@@ -160,16 +191,16 @@ const SandboxCreator = ({ onLaunchSandbox, recentSandboxes = [], onOpenStudio, s
                   key={id}
                   onClick={() => setSelectedTemplate(id)}
                   style={{
-                    padding: '12px 8px',
+                    padding: '12px 6px',
                     borderRadius: '10px',
-                    border: isSelected ? `1px solid ${color}40` : '1px solid rgba(255,255,255,0.08)',
-                    background: isSelected ? `${color}12` : 'rgba(255,255,255,0.03)',
+                    border: isSelected ? `1px solid ${color}40` : '1px solid rgba(255, 255, 255, 0.08)',
+                    background: isSelected ? `${color}12` : 'rgba(255, 255, 255, 0.03)',
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    gap: '6px',
+                    gap: '4px',
                     boxShadow: isSelected ? `0 0 12px ${color}20` : 'none',
                   }}
                 >
@@ -184,177 +215,66 @@ const SandboxCreator = ({ onLaunchSandbox, recentSandboxes = [], onOpenStudio, s
             })}
           </div>
 
-          {/* Launch Button */}
+          {/* Start New Sandbox Button */}
           <button
-            onClick={onLaunchSandbox}
-            disabled={launching}
+            onClick={() => setIsModalOpen(true)}
+            disabled={isProvisioning}
             style={{
               width: '100%',
               padding: '13px',
               borderRadius: '10px',
-              border: '1px solid rgba(99,102,241,0.4)',
-              background: launching
-                ? 'rgba(99,102,241,0.2)'
+              border: '1px solid rgba(99, 102, 241, 0.4)',
+              background: isProvisioning
+                ? 'rgba(99, 102, 241, 0.2)'
                 : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-              color: '#fff',
+              color: '#ffffff',
               fontSize: '14px',
               fontWeight: 700,
-              cursor: launching ? 'not-allowed' : 'pointer',
+              cursor: isProvisioning ? 'not-allowed' : 'pointer',
               transition: 'all 0.2s ease',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
-              boxShadow: launching ? 'none' : '0 0 20px rgba(99,102,241,0.35), 0 4px 20px rgba(0,0,0,0.3)',
-              letterSpacing: '0.01em',
-            }}
-            onMouseEnter={(e) => {
-              if (!launching) {
-                e.currentTarget.style.boxShadow = '0 0 30px rgba(99,102,241,0.5), 0 8px 30px rgba(0,0,0,0.4)';
-                e.currentTarget.style.transform = 'translateY(-1px)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = '0 0 20px rgba(99,102,241,0.35), 0 4px 20px rgba(0,0,0,0.3)';
-              e.currentTarget.style.transform = 'translateY(0)';
+              boxShadow: isProvisioning ? 'none' : '0 0 20px rgba(99, 102, 241, 0.35)',
             }}
           >
-            {launching ? (
+            {isProvisioning ? (
               <>
                 <Loader2 size={16} className="animate-spin-slow" />
-                Provisioning sandbox environment...
+                <span>Provisioning sandbox environment...</span>
               </>
             ) : (
               <>
-                <Zap size={16} />
-                Launch Sandbox
+                <Sparkles size={16} />
+                <span>Create New Project Sandbox</span>
               </>
             )}
           </button>
         </div>
       </div>
 
-      {/* Recent Sandboxes */}
-      {recentSandboxes.length > 0 && (
-        <div style={{ padding: '0 32px 48px', maxWidth: '800px', margin: '0 auto', width: '100%' }}>
-          <h3
-            style={{
-              fontSize: '13px',
-              fontWeight: 600,
-              color: '#71717a',
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              marginBottom: '12px',
-            }}
-          >
-            Recent Sandboxes
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {recentSandboxes.map((sb) => {
-              const st = STATUS_CONFIG[sb.status] ?? STATUS_CONFIG.idle;
-              return (
-                <div
-                  key={sb.id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '14px 16px',
-                    borderRadius: '10px',
-                    background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.07)',
-                    transition: 'all 0.15s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.border = '1px solid rgba(255,255,255,0.12)';
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.border = '1px solid rgba(255,255,255,0.07)';
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '8px',
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Box size={16} color="#52525b" />
-                  </div>
+      {/* Layer 4: Project List Presentation Component */}
+      <ProjectList
+        projects={projects}
+        loading={loadingProjects}
+        error={projectsError}
+        onLaunchProject={(project) => onLaunchSandbox(project)}
+        onRefresh={fetchProjects}
+        launchingProjectId={launchingProjectId}
+      />
 
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px' }}>
-                      <span
-                        style={{
-                          fontSize: '12px',
-                          fontFamily: "'JetBrains Mono', monospace",
-                          color: '#a1a1aa',
-                        }}
-                      >
-                        {sb.id}
-                      </span>
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          padding: '1px 7px',
-                          borderRadius: '20px',
-                          background: st.bg,
-                          border: `1px solid ${st.border}`,
-                        }}
-                      >
-                        <span
-                          className={sb.status === 'live' ? 'animate-pulse-dot' : ''}
-                          style={{
-                            width: '5px',
-                            height: '5px',
-                            borderRadius: '50%',
-                            background: st.color,
-                          }}
-                        />
-                        <span style={{ fontSize: '10px', color: st.color, fontWeight: 500 }}>
-                          {st.label}
-                        </span>
-                      </div>
-                    </div>
-                    <span style={{ fontSize: '11px', color: '#52525b' }}>{sb.template ?? 'React'} • {sb.createdAt}</span>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '6px' }}>
-                    <button
-                      onClick={() => onOpenStudio(sb)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        padding: '5px 10px',
-                        borderRadius: '6px',
-                        border: '1px solid rgba(99,102,241,0.3)',
-                        background: 'rgba(99,102,241,0.08)',
-                        color: '#818cf8',
-                        fontSize: '11px',
-                        fontWeight: 500,
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease',
-                      }}
-                    >
-                      Open Studio
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      {/* Layer 4: Modal Presentation Component */}
+      <CreateProjectModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setCreateError(null);
+        }}
+        onSubmit={handleCreateAndLaunch}
+        isSubmitting={creating || isProvisioning}
+        error={createError}
+      />
     </div>
   );
 };
