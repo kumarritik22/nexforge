@@ -3,13 +3,7 @@ import path from "node:path";
 import fs from "node:fs/promises";
 import { existsSync } from "node:fs";
 import chokidar from "chokidar";
-import {
-    S3Client,
-    ListObjectsV2Command,
-    PutObjectCommand,
-    GetObjectCommand,
-    DeleteObjectCommand
-} from "@aws-sdk/client-s3";
+import { S3Client, ListObjectsV2Command, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 // 1. Validate required environment variables
 const projectId = process.env.PROJECT_ID;
