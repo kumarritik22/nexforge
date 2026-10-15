@@ -9,3 +9,9 @@ const s3Client = new S3Client({
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
     }
 });
+
+const projectId = process.env.PROJECTID;
+
+const bucketName = "nexforge-bucket";
+
+const localDirectory = "/workspace";
