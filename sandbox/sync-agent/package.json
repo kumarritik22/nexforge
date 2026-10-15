@@ -1,4 +1,8 @@
 {
+  "name": "sync-agent",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "sync.js",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1151.0",
     "chokidar": "^5.0.0",
