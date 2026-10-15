@@ -67,7 +67,6 @@ export const createPod = async (sandboxId, projectId) => {
                     image: "sync-agent",
                     imagePullPolicy: "IfNotPresent",
                     name: "sync-agent-container",
-                    ports: [{ containerPort: 3000, name: "http" }],
                     resources: {
                         limits: { cpu: "500m", memory: "1Gi" },
                         requests: { cpu: "100m", memory: "150Mi" }
@@ -108,6 +107,15 @@ export const createPod = async (sandboxId, projectId) => {
                                 secretKeyRef: {
                                     name: "aws",
                                     key: "AWS_REGION"
+                                }
+                            }
+                        },
+                        {
+                            name: "BUCKET_NAME",
+                            valueFrom: {
+                                secretKeyRef: {
+                                    name: "aws",
+                                    key: "BUCKET_NAME"
                                 }
                             }
                         }

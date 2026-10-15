@@ -10,8 +10,8 @@ const s3Client = new S3Client({
     }
 });
 
-const projectId = process.env.PROJECTID;
+const projectId = process.env.PROJECT_ID;
 
-const bucketName = "nexforge-bucket";
+const bucketName = process.env.BUCKET_NAME;
 
 const localDirectory = "/workspace";
