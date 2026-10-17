@@ -15,10 +15,6 @@ app.get("/api/ai/readyz", (req, res) => {
     res.status(200).json({ status: "ready" })
 });
 
-app.patch("/api/ai/delete", (req, res) => {
-    res.status(200).json({ status: "deleted" })
-});
-
 app.use("/api/ai", agentRouter);
 
 export default app;
