@@ -19,10 +19,6 @@ app.patch("/api/ai/delete", (req, res) => {
     res.status(200).json({ status: "deleted" })
 });
 
-app.put("/api/ai/delete", (req, res) => {
-    res.status(200).json({ status: "updated" })
-});
-
 app.use("/api/ai", agentRouter);
 
 export default app;
